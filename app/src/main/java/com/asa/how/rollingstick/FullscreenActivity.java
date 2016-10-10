@@ -1,18 +1,47 @@
 package com.asa.how.rollingstick;
 
 import android.annotation.SuppressLint;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
 
-public class FullscreenActivity extends AppCompatActivity implements View.OnClickListener{
+public class FullscreenActivity extends AppCompatActivity implements View.OnClickListener,SensorEventListener{
 
     private static final int UI_ANIMATION_DELAY = 300;
     private final Handler mHideHandler = new Handler();
     private View mContentView;
+    private Sensor sensor;
+    private SensorManager sm;
     public  View[] led;
+    public  LED shine;
+    public int[][]  matrix;
+    int i ;
+
+    //                    0,1,2,3,4,5,6,7,8,9,a,b,c,d,e,f
+    public int[] row_0 = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1};
+    public int[] row_1 = {1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0};
+    public int[] row_2 = {0,1,0,0,0,0,0,0,0,0,0,0,0,1,0,0};
+    public int[] row_3 = {0,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0};
+    public int[] row_4 = {0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0};
+    public int[] row_5 = {0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,1};
+    public int[] row_6 = {0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,0};
+    public int[] row_7 = {0,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0};
+    public int[] row_8 = {0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0};
+    public int[] row_9 = {0,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0};
+    public int[] row_a = {0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,0};
+    public int[] row_b = {0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0};
+    public int[] row_c = {0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0};
+    public int[] row_d = {0,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0};
+    public int[] row_e = {0,1,0,0,0,0,0,0,0,0,0,0,0,1,0,0};
+    public int[] row_f = {1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0};
+
+
 
 
 
@@ -111,6 +140,10 @@ public class FullscreenActivity extends AppCompatActivity implements View.OnClic
         mContentView = findViewById(R.id.leds);
         mContentView.setOnClickListener(this);
 
+        sm = (SensorManager)getSystemService(SENSOR_SERVICE);//获取系统传感器服务
+        sensor = sm.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);//默认传感器设置为加速度传感器
+        sm.registerListener(this,sensor,1000);//指定传感器监听接口及其参数
+
         //以下初始化led灯的view
 
         led = new View[16];
@@ -130,12 +163,52 @@ public class FullscreenActivity extends AppCompatActivity implements View.OnClic
         led[13] = findViewById(R.id.led_d);
         led[14] = findViewById(R.id.led_e);
         led[15] = findViewById(R.id.led_f);
+
+
+
+        matrix = new int[16][16];
+        matrix[0] = row_0;
+        matrix[1] = row_1;
+        matrix[2] = row_2;
+        matrix[3] = row_3;
+        matrix[4] = row_4;
+        matrix[5] = row_5;
+        matrix[6] = row_6;
+        matrix[7] = row_7;
+        matrix[8] = row_8;
+        matrix[9] = row_9;
+        matrix[10] = row_a;
+        matrix[11] = row_b;
+        matrix[12] = row_c;
+        matrix[13] = row_d;
+        matrix[14] = row_e;
+        matrix[15] = row_f;
+
+        i = 0;
+
+        shine = new LED(led);
+
     }
     //初始化咯，净化oncreat()方法
 
     @Override
     public void onClick(View v) {
         toggle();
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+
+        shine.setStatus(matrix[i]);
+        shine.show();
+        i++;
+        if(i>15)
+            i = 0;
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
     }
     //设计成点击整个led条都会触发全屏或退出全屏
 }
