@@ -21,7 +21,8 @@ public class FullscreenActivity extends AppCompatActivity implements View.OnClic
     public  View[] led;
     public  LED shine;
     public int[][]  matrix;
-    int i ;
+    int i , j;
+    float[] values;
 
     //                    0,1,2,3,4,5,6,7,8,9,a,b,c,d,e,f
     public int[] row_0 = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1};
@@ -164,7 +165,10 @@ public class FullscreenActivity extends AppCompatActivity implements View.OnClic
         led[14] = findViewById(R.id.led_e);
         led[15] = findViewById(R.id.led_f);
 
-
+        values = new float[3];
+        values[0] = 0;
+        values[1] = 0;
+        values[2] = 100;
 
         matrix = new int[16][16];
         matrix[0] = row_0;
@@ -185,6 +189,7 @@ public class FullscreenActivity extends AppCompatActivity implements View.OnClic
         matrix[15] = row_f;
 
         i = 0;
+        j = 0;
 
         shine = new LED(led);
 
@@ -199,9 +204,23 @@ public class FullscreenActivity extends AppCompatActivity implements View.OnClic
     @Override
     public void onSensorChanged(SensorEvent event) {
 
-        shine.setStatus(matrix[i]);
-        shine.show();
-        i++;
+        values[j] = event.values[0];
+        j++;
+        if(j>2)
+            j = 0;
+
+        if(values[2]!=100){
+            if((values[2]-values[1])*(values[1]-values[0])<0){
+                shine.setStatus(matrix[i]);
+                shine.show();
+                i++;
+            }
+
+
+        }
+
+
+
         if(i>15)
             i = 0;
     }
